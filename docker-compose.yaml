@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+
+  openresty-api:
+    image: hellotalk/dev-openresty
+    restart: on-failure
+    container_name: openresty_api
+    depends_on:
+      - openfalcon-collector
+    ipc: container:openfalcon_collector
+    volumes:
+      - path/to/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - path/to/logs:/usr/local/openresty/nginx/logs
+      - path/to/cores:/usr/local/openresty/nginx/logs/cores/
+      - path/to/lua:/home/git/webapi/lua
+      - path/to/www:/var/www/html/
+    ports:
+        - "10888:80/tcp"
+    networks:
+        - openresty
+
+  openfalcon-collector:
+    image: hellotalk/openfalcon-collector
+    restart: on-failure
+    container_name: openfalcon_collector
+    hostname: openresty_api
+    volumes:
+            - path/to/openfalcon_collector.conf:/etc/openfalcon_collector.conf:ro
+    networks:
+        - openresty
+
+networks:
+  openresty:
+    driver: bridge
